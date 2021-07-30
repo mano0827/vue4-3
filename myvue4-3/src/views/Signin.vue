@@ -18,7 +18,6 @@
 </template>
 
 <script>
-
 export default {
   name: "signin",
   data() {
@@ -28,13 +27,12 @@ export default {
     };
   },
   methods: {
-     signIn() {
+    signIn() {
       this.$store.dispatch("signIn", {
         email: this.email,
         password: this.password,
       });
     },
-   
   },
 };
 </script>

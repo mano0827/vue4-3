@@ -10,14 +10,12 @@
 
     <table>
       <tr>
-       <th>ユーザー</th>
+        <th>ユーザー</th>
       </tr>
-       <td>{{userName}}</td>
-       <td><button>walletを見る</button></td>
-       <td><button>送る</button></td>
-      </table>
-
-
+      <td>{{ userName }}</td>
+      <td><button>walletを見る</button></td>
+      <td><button>送る</button></td>
+    </table>
   </div>
 </template>
 
@@ -29,7 +27,7 @@ export default {
   name: "Home",
   data() {
     return {
-      userName:''
+      userName: "",
     };
   },
   methods: {
@@ -44,14 +42,14 @@ export default {
   },
   computed: {
     name() {
-    return this.$store.getters.name;
-  }
+      return this.$store.getters.name;
+    },
   },
-  mounted(){
-    firebase.auth().onAuthStateChanged(user => {
+  mounted() {
+    firebase.auth().onAuthStateChanged((user) => {
       this.userName = user.displayName;
     });
-  }
+  },
 };
 </script>
 
@@ -76,18 +74,17 @@ export default {
   color: aliceblue;
 }
 
-.name{
+.name {
   position: absolute;
   left: 160px;
 }
 
-h1{
+h1 {
   margin-top: 70px;
 }
 
-.wallet{
+.wallet {
   position: absolute;
   right: 200px;
 }
-
 </style>
