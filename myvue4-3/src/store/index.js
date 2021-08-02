@@ -65,12 +65,13 @@ export default new Vuex.Store({
             .then(() => {
               router.push('/home')
             })
-        })
-        .catch(function (error) {
-          alert('パスワードもしくはメールアドレスが異なります（' + error.message + '）');
-        });
+          })
+          .catch(function (error) {
+            alert('パスワードもしくはメールアドレスが異なります（' + error.message + '）');
+          });
+          
+        },
     },
-  },
   modules: {
   }
 })

@@ -49,6 +49,14 @@ export default {
     firebase.auth().onAuthStateChanged((user) => {
       this.userName = user.displayName;
     });
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        location.href = "/home";
+      } else {
+        location.href = "/signin";
+      }
+    });
   },
 };
 </script>
