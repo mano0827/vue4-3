@@ -34,15 +34,28 @@ export default new Vuex.Store({
     }
   },
   actions: {
+
     signUp: function (context, payload) {
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
         .then(() => {
-          firebase.auth().currentUser.updateProfile({
+          const user = firebase.auth().currentUser
+          user.updateProfile({
             displayName: payload.name,
           },
           )
             .then(() => {
               context.commit('setUser', payload)
+            })
+            .then(() => {
+              const db = firebase.firestore();
+              db.collection("userData").doc(user.uid).set({
+                uid: user.uid,
+                email: payload.email,
+                password: payload.password,
+                name: payload.name,
+                myWallet: payload.myWallet,
+
+              })
             })
             .then(() => {
               router.push('/home')
@@ -55,23 +68,35 @@ export default new Vuex.Store({
     signIn: function (context, payload) {
       firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
         .then(() => {
+          const user = firebase.auth().currentUser
+          const docRef = firebase.firestore().collection("userData").doc(user.uid);
           firebase.auth().currentUser.updateProfile({
             displayName: payload.name,
+
           },
           )
+          docRef.get()
+            .then((doc) => {
+              if (doc.exists) {
+                context.commit('setUserData', doc)
+              } else {
+                console.log();
+              }
+            })
             .then(() => {
               context.commit('setUser', payload)
             })
             .then(() => {
               router.push('/home')
             })
-          })
-          .catch(function (error) {
-            alert('パスワードもしくはメールアドレスが異なります（' + error.message + '）');
-          });
-          
-        },
+            .catch(function (error) {
+              alert('パスワードもしくはメールアドレスが異なります（' + error.message + '）');
+            })
+        });
+
     },
+  },
   modules: {
   }
 })
+

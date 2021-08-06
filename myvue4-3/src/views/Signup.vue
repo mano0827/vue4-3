@@ -35,6 +35,7 @@ export default {
       name: "",
       email: "",
       password: "",
+      myWallet:""
     };
   },
   methods: {
@@ -43,6 +44,7 @@ export default {
         name: this.name,
         email: this.email,
         password: this.password,
+        myWallet:this.myWallet,
       });
     },
   },
