@@ -35,7 +35,7 @@ export default {
       name: "",
       email: "",
       password: "",
-      myWallet:""
+      myWallet:"500"
     };
   },
   methods: {

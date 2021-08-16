@@ -3,32 +3,38 @@
     <img alt="Vue logo" src="../assets/logo.png" />
     <button @click="signOut" class="signout">ログアウト</button>
     <p class="name">{{ userName }}さんようこそ！</p>
-    <p class="wallet">残高：1000</p>
+    <p class="wallet">残高：{{ $store.getters.myWallet }}</p>
     <h1>ユーザ一覧</h1>
+
     <table>
-      <tr>
-        <th>ユーザー</th>
-      </tr>
-      <td>{{ userName }}</td>
-      <td><button @click="openWallet">walletを見る</button></td>
-      <td><button @click="openSend">送る</button></td>
+      <thead>
+        <tr>
+          <th>ユーザー</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, key) in userData" :key="key">
+          <td>{{ item.name }}</td>
+          <td><button @click="openWallet">walletを見る</button></td>
+          <td><button @click="openSend">送る</button></td>
+          <div class="overlay" v-show="showContent">
+            <div class="content1">
+              <p>{{ item.name }}さんの残高</p>
+              <p>{{ item.myWallet }}</p>
+              <button class="btn" @click="closeWallet">Close</button>
+            </div>
+          </div>
+          <div class="overlay" v-show="sendContent">
+            <div class="content2">
+              <p>あなたの残高：{{ item.myWallet }}</p>
+              <p>送る金額</p>
+              <input type="number" />
+              <button class="btn" @click="closeSend">送信</button>
+            </div>
+          </div>
+        </tr>
+      </tbody>
     </table>
-
-    <div class="overlay" v-show="showContent">
-      <div class="content1">
-        <p>{{}}さんの残高</p>
-        <button class="btn" @click="closeWallet">Close</button>
-      </div>
-    </div>
-
-    <div class="overlay" v-show="sendContent">
-      <div class="content2">
-        <p>あなたの残高：{{}}</p>
-        <p>送る金額</p>
-        <input type="number" />
-        <button class="btn" @click="closeSend">送信</button>
-      </div>
-    </div>
   </div>
 </template>
 <script>
@@ -38,9 +44,28 @@ export default {
   data() {
     return {
       userName: "",
+      userWallet: "",
       showContent: false,
       sendContent: false,
+      userData: [],
     };
+  },
+  created() {
+    const user = firebase.auth().currentUser;
+    firebase
+      .firestore()
+      .collection("userData")
+      .where(firebase.firestore.FieldPath.documentId(), "!=", user.uid)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          let data = {
+            name: doc.data().name,
+            myWallet: doc.data().myWallet,
+          };
+          this.userData.push(data);
+        });
+      });
   },
   methods: {
     openWallet: function () {
@@ -68,11 +93,17 @@ export default {
     name() {
       return this.$store.getters.name;
     },
+    myWallet() {
+      return this.$store.getters.myWallet;
+    },
   },
 
   mounted() {
     firebase.auth().onAuthStateChanged((user) => {
       this.userName = user.displayName;
+    });
+    firebase.auth().onAuthStateChanged((user) => {
+      this.userWallet = user.displayWallet;
     });
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {

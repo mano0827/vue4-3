@@ -11,31 +11,48 @@ export default new Vuex.Store({
     user: {
       name: '',
       email: '',
-      password: ''
-    }
+      password: '',
+      myWallet: '',
+    },
+    users: [],
+
   },
   getters: {
     email(state) {
-      return state.email;
+      return state.user.email;
     },
     password(state) {
-      return state.password;
+      return state.user.password;
     },
     name(state) {
-      return state.name;
+      return state.user.name;
+    },
+    myWallet(state) {
+      return state.user.myWallet;
+    },
+    users(state) {
+      return state.users
     },
   },
   mutations: {
-    setUser: function (user, payload) {
-      user.email = payload.email
-      user.password = payload.password
-      user.name = payload.name
+    setUser(state, payload) {
+      state.user.email = payload.email
+      state.user.password = payload.password
+      state.user.name = payload.name
+      state.user.myWallet = payload.myWallet
 
-    }
+    },
+    setUserData(state, doc) {
+      state.user.name = doc.data().name
+      state.user.myWallet = doc.data().myWallet
+    },
+    setUsersData(state, users) {
+      state.users = users
+    },
   },
   actions: {
 
-    signUp: function (context, payload) {
+    signUp(context, payload) {
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
         .then(() => {
           const user = firebase.auth().currentUser
@@ -44,9 +61,6 @@ export default new Vuex.Store({
           },
           )
             .then(() => {
-              context.commit('setUser', payload)
-            })
-            .then(() => {
               const db = firebase.firestore();
               db.collection("userData").doc(user.uid).set({
                 uid: user.uid,
@@ -54,8 +68,10 @@ export default new Vuex.Store({
                 password: payload.password,
                 name: payload.name,
                 myWallet: payload.myWallet,
-
               })
+            })
+            .then(() => {
+              context.commit('setUser', payload)
             })
             .then(() => {
               router.push('/home')
@@ -65,16 +81,12 @@ export default new Vuex.Store({
           alert('入力に誤りがあります（' + error.message + '）');
         });
     },
-    signIn: function (context, payload) {
+    signIn(context, payload) {
       firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
         .then(() => {
           const user = firebase.auth().currentUser
           const docRef = firebase.firestore().collection("userData").doc(user.uid);
-          firebase.auth().currentUser.updateProfile({
-            displayName: payload.name,
-
-          },
-          )
+        
           docRef.get()
             .then((doc) => {
               if (doc.exists) {
@@ -84,16 +96,12 @@ export default new Vuex.Store({
               }
             })
             .then(() => {
-              context.commit('setUser', payload)
-            })
-            .then(() => {
               router.push('/home')
             })
             .catch(function (error) {
               alert('パスワードもしくはメールアドレスが異なります（' + error.message + '）');
             })
-        });
-
+        })
     },
   },
   modules: {
