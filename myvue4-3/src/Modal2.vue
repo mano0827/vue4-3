@@ -1,9 +1,9 @@
 <template>
   <div class="overlay" v-show="showContent2">
     <div class="main-content">
-      <p>あなたの残高 {{val.myWallet}}</p>
+      <p>あなたの残高 {{ val.myWallet }}</p>
       <p>送る金額</p>
-      <input type="number">
+      <input type="number" />
 
       <div class="button-content">
         <p>
@@ -19,11 +19,11 @@
 <script>
 import firebase from "firebase";
 export default {
-   props: {val:Object},
+  props: { val: Object },
   data() {
     return {
       showContent2: false,
-      userData:[],
+      userData: [],
     };
   },
   methods: {
@@ -33,7 +33,7 @@ export default {
     closeModal2() {
       this.$emit("close", this.showContent2);
     },
-       returnUserData(id) {
+    returnUserData(id) {
       const userData = this.userData.find((user) => user.uid === id);
       return userData;
     },
@@ -44,22 +44,21 @@ export default {
       const currentUser = firebase.auth().currentUser;
       this.uid = currentUser.uid;
       firebase
-      .firestore()
-      .collection("userData")
-      .where(firebase.firestore.FieldPath.documentId(), "!=", currentUser.uid)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          let data = {
-            name: doc.data().name,
-            myWallet: doc.data().myWallet,
-          };
-          this.userData.push(data);
+        .firestore()
+        .collection("userData")
+        .where(firebase.firestore.FieldPath.documentId(), "!=", currentUser.uid)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            let data = {
+              name: doc.data().name,
+              myWallet: doc.data().myWallet,
+            };
+            this.userData.push(data);
+          });
         });
-      });  
     });
   },
-  
 };
 </script>
 
@@ -75,5 +74,4 @@ export default {
     rgb(197, 195, 195) 100%
   );
 }
-
 </style>

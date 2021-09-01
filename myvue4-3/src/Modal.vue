@@ -2,7 +2,7 @@
   <div class="overlay" v-show="showContent">
     <div class="main-content">
       <p>{{ val.name }}さんの残高</p>
-      <p>{{ val.myWallet}}</p>
+      <p>{{ val.myWallet }}</p>
       <div id="button-content">
         <p>
           <button @click="closeModal" class="modal-button">close</button>
@@ -17,11 +17,11 @@
 <script>
 import firebase from "firebase";
 export default {
-  props: {val:Object},
+  props: { val: Object },
   data() {
     return {
       showContent: false,
-      userData:[],
+      userData: [],
     };
   },
   methods: {
@@ -31,7 +31,7 @@ export default {
     closeModal() {
       this.$emit("close", this.showContent);
     },
-      returnUserData(id) {
+    returnUserData(id) {
       const userData = this.userData.find((user) => user.uid === id);
       return userData;
     },
@@ -42,19 +42,19 @@ export default {
       const currentUser = firebase.auth().currentUser;
       this.uid = currentUser.uid;
       firebase
-      .firestore()
-      .collection("userData")
-      .where(firebase.firestore.FieldPath.documentId(), "!=", currentUser.uid)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          let data = {
-            name: doc.data().name,
-            myWallet: doc.data().myWallet,
-          };
-          this.userData.push(data);
+        .firestore()
+        .collection("userData")
+        .where(firebase.firestore.FieldPath.documentId(), "!=", currentUser.uid)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            let data = {
+              name: doc.data().name,
+              myWallet: doc.data().myWallet,
+            };
+            this.userData.push(data);
+          });
         });
-      });  
     });
   },
 };
@@ -73,11 +73,8 @@ export default {
   );
 }
 
-.modal-button{
- position: relative;
- bottom:-22px
+.modal-button {
+  position: relative;
+  bottom: -22px;
 }
-
-
-
 </style>

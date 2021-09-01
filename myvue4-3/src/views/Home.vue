@@ -11,46 +11,51 @@
           <th>ユーザー</th>
         </tr>
       </thead>
-      <tr v-for="(user,index) in userData" v-bind:key="index">
-        <td>{{ user.name}}</td>
-        <td><button class="button2" @click="openModal(user,index)">Walletを見る</button></td>
-        <td><button class="button2" @click="openModal2(user,index)">送る</button></td>
+      <tr v-for="(user, index) in userData" v-bind:key="index">
+        <td>{{ user.name }}</td>
+        <td>
+          <button class="button2" @click="openModal(user, index)">
+            Walletを見る
+          </button>
+        </td>
+        <td>
+          <button class="button2" @click="openModal2(user, index)">送る</button>
+        </td>
       </tr>
     </table>
     <div>
-          <Modal
-           :user="user"
-           v-for="(user,index) in userData" v-bind:key="index"
-           :val="usersIndex"
-            v-show="showContent"
-            @click="closeModal"
-            @open="showContent = true"
-            @close="showContent = false"
-          ></Modal>
-   
-      </div>
+      <Modal
+        :user="user"
+        v-for="(user, index) in userData"
+        v-bind:key="index"
+        :val="usersIndex"
+        v-show="showContent"
+        @click="closeModal"
+        @open="showContent = true"
+        @close="showContent = false"
+      ></Modal>
+    </div>
     <div>
-       
-          <Modal2
-          :user="user"
-           v-for="(user,index) in userData" v-bind:key="index"
-           :val="usersIndex"
-            v-show="showContent2"
-            @click="closeModal2"
-            @open="showContent2 = true"
-            @close="showContent2 = false"
-          ></Modal2>
-  
-      </div>
+      <Modal2
+        :user="user"
+        v-for="(user, index) in userData"
+        v-bind:key="index"
+        :val="usersIndex"
+        v-show="showContent2"
+        @click="closeModal2"
+        @open="showContent2 = true"
+        @close="showContent2 = false"
+      ></Modal2>
+    </div>
   </div>
 </template>
 <script>
-import Modal from '../Modal.vue';
-import Modal2 from '../Modal2.vue';
+import Modal from "../Modal.vue";
+import Modal2 from "../Modal2.vue";
 import firebase from "firebase";
 export default {
-  name: 'Home',
-  components:{
+  name: "Home",
+  components: {
     Modal,
     Modal2,
   },
@@ -59,32 +64,32 @@ export default {
       userName: "",
       showContent: false,
       showContent2: false,
-      usersIndex:'',
+      usersIndex: "",
       userData: [],
     };
   },
   methods: {
-    openModal (user){
-      console.log(user)
-      this.showContent = true
-      this.usersIndex = user
-      const usersIndex = this.usersIndex
-      this.$store.dispatch('modalSet', usersIndex)
+    openModal(user) {
+      console.log(user);
+      this.showContent = true;
+      this.usersIndex = user;
+      const usersIndex = this.usersIndex;
+      this.$store.dispatch("modalSet", usersIndex);
     },
-    closeModal (){
-      this.showContent = false
+    closeModal() {
+      this.showContent = false;
     },
-    openModal2 (user){
-      console.log(user)
-      this.showContent2 = true
-      this.usersIndex = user
-      const usersIndex = this.usersIndex
-      this.$store.dispatch('modalSet', usersIndex)
+    openModal2(user) {
+      console.log(user);
+      this.showContent2 = true;
+      this.usersIndex = user;
+      const usersIndex = this.usersIndex;
+      this.$store.dispatch("modalSet", usersIndex);
     },
-    closeModal2 (){
-      this.showContent2 = false
+    closeModal2() {
+      this.showContent2 = false;
     },
-  
+
     signOut() {
       firebase
         .auth()
@@ -94,14 +99,6 @@ export default {
         });
     },
   },
-  // computed: {
-  //   name() {
-  //     return this.$store.getters.name;
-  //   },
-  //   myWallet() {
-  //     return this.$store.getters.myWallet;
-  //   },
-  // },
 
   mounted() {
     firebase.auth().onAuthStateChanged((user) => {
@@ -114,25 +111,23 @@ export default {
       } else {
         location.href = "/signin";
       }
-    
+
       const currentUser = firebase.auth().currentUser;
       this.uid = currentUser.uid;
       firebase
-      .firestore()
-      .collection("userData")
-      .where(firebase.firestore.FieldPath.documentId(), "!=", currentUser.uid)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          let data = {
-            name: doc.data().name,
-            myWallet: doc.data().myWallet,
-          };
-          this.userData.push(data);
+        .firestore()
+        .collection("userData")
+        .where(firebase.firestore.FieldPath.documentId(), "!=", currentUser.uid)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            let data = {
+              name: doc.data().name,
+              myWallet: doc.data().myWallet,
+            };
+            this.userData.push(data);
+          });
         });
-      });
-  
-      
     });
   },
 };
