@@ -18,6 +18,7 @@ const config = {
 
 };
 
+
 firebase.initializeApp(config);
 
 Vue.config.productionTip = false

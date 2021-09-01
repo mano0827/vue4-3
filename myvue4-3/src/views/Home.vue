@@ -5,57 +5,122 @@
     <p class="name">{{ userName }}さんようこそ！</p>
     <p class="wallet">残高：{{ $store.getters.myWallet }}</p>
     <h1>ユーザ一覧</h1>
-
     <table>
       <thead>
         <tr>
           <th>ユーザー</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="(item, key) in userData" :key="key">
-          <td>{{ item.name }}</td>
-          <td><button @click="openWallet">walletを見る</button></td>
-          <td><button @click="openSend">送る</button></td>
-          <div class="overlay" v-show="showContent">
-            <div class="content1">
-              <p>{{ item.name }}さんの残高</p>
-              <p>{{ item.myWallet }}</p>
-              <button class="btn" @click="closeWallet">Close</button>
-            </div>
-          </div>
-          <div class="overlay" v-show="sendContent">
-            <div class="content2">
-              <p>あなたの残高：{{ item.myWallet }}</p>
-              <p>送る金額</p>
-              <input type="number" />
-              <button class="btn" @click="closeSend">送信</button>
-            </div>
-          </div>
-        </tr>
-      </tbody>
+      <tr v-for="(user,index) in userData" v-bind:key="index">
+        <td>{{ user.name}}</td>
+        <td><button class="button2" @click="openModal(user,index)">Walletを見る</button></td>
+        <td><button class="button2" @click="openModal2(user,index)">送る</button></td>
+      </tr>
     </table>
+    <div>
+          <Modal
+           :user="user"
+           v-for="(user,index) in userData" v-bind:key="index"
+           :val="usersIndex"
+            v-show="showContent"
+            @click="closeModal"
+            @open="showContent = true"
+            @close="showContent = false"
+          ></Modal>
+   
+      </div>
+    <div>
+       
+          <Modal2
+          :user="user"
+           v-for="(user,index) in userData" v-bind:key="index"
+           :val="usersIndex"
+            v-show="showContent2"
+            @click="closeModal2"
+            @open="showContent2 = true"
+            @close="showContent2 = false"
+          ></Modal2>
+  
+      </div>
   </div>
 </template>
 <script>
+import Modal from '../Modal.vue';
+import Modal2 from '../Modal2.vue';
 import firebase from "firebase";
 export default {
-  name: "Home",
+  name: 'Home',
+  components:{
+    Modal,
+    Modal2,
+  },
   data() {
     return {
       userName: "",
-      userWallet: "",
       showContent: false,
-      sendContent: false,
+      showContent2: false,
+      usersIndex:'',
       userData: [],
     };
   },
-  created() {
-    const user = firebase.auth().currentUser;
-    firebase
+  methods: {
+    openModal (user){
+      console.log(user)
+      this.showContent = true
+      this.usersIndex = user
+      const usersIndex = this.usersIndex
+      this.$store.dispatch('modalSet', usersIndex)
+    },
+    closeModal (){
+      this.showContent = false
+    },
+    openModal2 (user){
+      console.log(user)
+      this.showContent2 = true
+      this.usersIndex = user
+      const usersIndex = this.usersIndex
+      this.$store.dispatch('modalSet', usersIndex)
+    },
+    closeModal2 (){
+      this.showContent2 = false
+    },
+  
+    signOut() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          this.$router.push("/signin");
+        });
+    },
+  },
+  // computed: {
+  //   name() {
+  //     return this.$store.getters.name;
+  //   },
+  //   myWallet() {
+  //     return this.$store.getters.myWallet;
+  //   },
+  // },
+
+  mounted() {
+    firebase.auth().onAuthStateChanged((user) => {
+      this.userName = user.displayName;
+    });
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        console.log("true");
+      } else {
+        location.href = "/signin";
+      }
+    
+      const currentUser = firebase.auth().currentUser;
+      this.uid = currentUser.uid;
+      firebase
       .firestore()
       .collection("userData")
-      .where(firebase.firestore.FieldPath.documentId(), "!=", user.uid)
+      .where(firebase.firestore.FieldPath.documentId(), "!=", currentUser.uid)
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
@@ -66,51 +131,8 @@ export default {
           this.userData.push(data);
         });
       });
-  },
-  methods: {
-    openWallet: function () {
-      this.showContent = true;
-    },
-    closeWallet: function () {
-      this.showContent = false;
-    },
-    openSend: function () {
-      this.sendContent = true;
-    },
-    closeSend: function () {
-      this.sendContent = false;
-    },
-    signOut() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          this.$router.push("/signin");
-        });
-    },
-  },
-  computed: {
-    name() {
-      return this.$store.getters.name;
-    },
-    myWallet() {
-      return this.$store.getters.myWallet;
-    },
-  },
-
-  mounted() {
-    firebase.auth().onAuthStateChanged((user) => {
-      this.userName = user.displayName;
-    });
-    firebase.auth().onAuthStateChanged((user) => {
-      this.userWallet = user.displayWallet;
-    });
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        console.log = "true";
-      } else {
-        location.href = "/signin";
-      }
+  
+      
     });
   },
 };

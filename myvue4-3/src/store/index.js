@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from 'firebase'
 import router from '@/router'
+import createPersistedState from "vuex-persistedstate"
 
 
 Vue.use(Vuex)
@@ -15,6 +16,8 @@ export default new Vuex.Store({
       myWallet: '',
     },
     users: [],
+    // ログインしてないユーザー情報
+    modalDatas: [],
 
   },
   getters: {
@@ -33,8 +36,12 @@ export default new Vuex.Store({
     users(state) {
       return state.users
     },
+    modalDatas(state) {
+      return state.modalDatas
+    },
   },
   mutations: {
+    // ユーザー情報
     setUser(state, payload) {
       state.user.email = payload.email
       state.user.password = payload.password
@@ -49,6 +56,9 @@ export default new Vuex.Store({
     setUsersData(state, users) {
       state.users = users
     },
+    setModalDatas(state, modalDatas) {
+      state.modalDatas = modalDatas
+    },
   },
   actions: {
 
@@ -56,10 +66,6 @@ export default new Vuex.Store({
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
         .then(() => {
           const user = firebase.auth().currentUser
-          user.updateProfile({
-            displayName: payload.name,
-          },
-          )
             .then(() => {
               const db = firebase.firestore();
               db.collection("userData").doc(user.uid).set({
@@ -86,7 +92,6 @@ export default new Vuex.Store({
         .then(() => {
           const user = firebase.auth().currentUser
           const docRef = firebase.firestore().collection("userData").doc(user.uid);
-        
           docRef.get()
             .then((doc) => {
               if (doc.exists) {
@@ -103,8 +108,32 @@ export default new Vuex.Store({
             })
         })
     },
+    // モーダル用のデータ
+    // modalSet (context, usersIndex) {
+    modalSet (context) {
+      const modalDatas = [];
+      const user = firebase.auth().currentUser
+      const db = firebase.firestore();
+      db.collection("userData")
+      // ログインしてないユーザーを取得
+          .where(firebase.firestore.FieldPath.documentId(), "!=", user.uid)
+          .get()
+          .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                  const modalData = {
+                      // uid: usersIndex,
+                      name: doc.data().name,
+                      myWallet: doc.data().myWallet
+                  }
+                  modalDatas.push(modalData)
+                  context.commit('setModalDatas', modalDatas)
+                  // console.log(modalDatas)
+              });
+              });
   },
+},
   modules: {
-  }
+  },
+  plugins: [createPersistedState({storage: window.sessionStorage})]
 })
 
