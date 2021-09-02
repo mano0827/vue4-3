@@ -73,8 +73,6 @@ export default {
       console.log(user);
       this.showContent = true;
       this.usersIndex = user;
-      const usersIndex = this.usersIndex;
-      this.$store.dispatch("modalSet", usersIndex);
     },
     closeModal() {
       this.showContent = false;
@@ -83,8 +81,6 @@ export default {
       console.log(user);
       this.showContent2 = true;
       this.usersIndex = user;
-      const usersIndex = this.usersIndex;
-      this.$store.dispatch("modalSet", usersIndex);
     },
     closeModal2() {
       this.showContent2 = false;

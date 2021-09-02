@@ -17,7 +17,11 @@
 <script>
 import firebase from "firebase";
 export default {
-  props: { val: Object },
+  props: {
+    val: {
+      type: null,
+    },
+  },
   data() {
     return {
       showContent: false,

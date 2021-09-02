@@ -15,10 +15,8 @@ export default new Vuex.Store({
       password: '',
       myWallet: '',
     },
-    users: [],
-    // ログインしてないユーザー情報
-    modalDatas: [],
-
+    userData: [],
+    
   },
   getters: {
     email(state) {
@@ -33,15 +31,11 @@ export default new Vuex.Store({
     myWallet(state) {
       return state.user.myWallet;
     },
-    users(state) {
-      return state.users
-    },
-    modalDatas(state) {
-      return state.modalDatas
+    userData(state) {
+      return state.userData
     },
   },
   mutations: {
-    // ユーザー情報
     setUser(state, payload) {
       state.user.email = payload.email
       state.user.password = payload.password
@@ -53,11 +47,8 @@ export default new Vuex.Store({
       state.user.name = doc.data().name
       state.user.myWallet = doc.data().myWallet
     },
-    setUsersData(state, users) {
-      state.users = users
-    },
-    setModalDatas(state, modalDatas) {
-      state.modalDatas = modalDatas
+    setUsersData(state, userData) {
+      state.userData = userData
     },
   },
   actions: {
@@ -108,32 +99,9 @@ export default new Vuex.Store({
             })
         })
     },
-    // モーダル用のデータ
-    // modalSet (context, usersIndex) {
-    modalSet (context) {
-      const modalDatas = [];
-      const user = firebase.auth().currentUser
-      const db = firebase.firestore();
-      db.collection("userData")
-      // ログインしてないユーザーを取得
-          .where(firebase.firestore.FieldPath.documentId(), "!=", user.uid)
-          .get()
-          .then((querySnapshot) => {
-              querySnapshot.forEach((doc) => {
-                  const modalData = {
-                      // uid: usersIndex,
-                      name: doc.data().name,
-                      myWallet: doc.data().myWallet
-                  }
-                  modalDatas.push(modalData)
-                  context.commit('setModalDatas', modalDatas)
-                  // console.log(modalDatas)
-              });
-              });
   },
-},
   modules: {
   },
-  plugins: [createPersistedState({storage: window.sessionStorage})]
+  plugins: [createPersistedState({ storage: window.sessionStorage })]
 })
 
