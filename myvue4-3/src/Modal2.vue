@@ -3,12 +3,7 @@
     <div class="main-content">
       <p>あなたの残高 {{ val.myWallet }}</p>
       <p>送る金額</p>
-      <input
-        type="text"
-        v-bind="data2.value"
-        ref="input"
-        @keyup.enter="submitText"
-      />
+      <input v-bind="data2" type="text" ref="input" >
 
       <div class="button-content">
         <p>

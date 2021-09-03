@@ -15,7 +15,7 @@
 
 
 <script>
-import firebase from "firebase";
+// import firebase from "firebase";
 export default {
   props: {
     val: {
@@ -41,26 +41,7 @@ export default {
     },
   },
 
-  mounted() {
-    firebase.auth().onAuthStateChanged(() => {
-      const currentUser = firebase.auth().currentUser;
-      this.uid = currentUser.uid;
-      firebase
-        .firestore()
-        .collection("userData")
-        .where(firebase.firestore.FieldPath.documentId(), "!=", currentUser.uid)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            let data = {
-              name: doc.data().name,
-              myWallet: doc.data().myWallet,
-            };
-            this.userData.push(data);
-          });
-        });
-    });
-  },
+  mounted() {},
 };
 </script>
 

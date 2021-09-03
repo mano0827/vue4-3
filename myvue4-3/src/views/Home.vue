@@ -68,6 +68,7 @@ export default {
       userData: [],
     };
   },
+
   methods: {
     openModal(user) {
       console.log(user);
@@ -93,6 +94,11 @@ export default {
         .then(() => {
           this.$router.push("/signin");
         });
+    },
+  },
+  computed: {
+    myWallet() {
+      return this.$store.getters.myWallet;
     },
   },
 
