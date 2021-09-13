@@ -68,7 +68,7 @@ export default {
       userData: [],
     };
   },
-
+  
   methods: {
     openModal(user) {
       console.log(user);
