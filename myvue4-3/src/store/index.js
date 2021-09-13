@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from 'firebase'
 import router from '@/router'
+import createPersistedState from "vuex-persistedstate"
 
 
 Vue.use(Vuex)
@@ -11,36 +12,61 @@ export default new Vuex.Store({
     user: {
       name: '',
       email: '',
-      password: ''
-    }
+      password: '',
+      myWallet: '',
+    },
+    userData: [],
+    
   },
   getters: {
     email(state) {
-      return state.email;
+      return state.user.email;
     },
     password(state) {
-      return state.password;
+      return state.user.password;
     },
     name(state) {
-      return state.name;
+      return state.user.name;
+    },
+    myWallet(state) {
+      return state.user.myWallet;
+    },
+    userData(state) {
+      return state.userData
     },
   },
   mutations: {
-    setUser: function (user, payload) {
-      user.email = payload.email
-      user.password = payload.password
-      user.name = payload.name
+    setUser(state, payload) {
+      state.user.email = payload.email
+      state.user.password = payload.password
+      state.user.name = payload.name
+      state.user.myWallet = payload.myWallet
 
-    }
+    },
+    setUserData(state, doc) {
+      state.user.name = doc.data().name
+      state.user.myWallet = doc.data().myWallet
+    },
+    setUsersData(state, userData) {
+      state.userData = userData
+    },
   },
   actions: {
-    signUp: function (context, payload) {
+
+    signUp(context, payload) {
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
         .then(() => {
-          firebase.auth().currentUser.updateProfile({
-            displayName: payload.name,
-          },
-          )
+          const user = firebase.auth().currentUser
+            .then(() => {
+              const db = firebase.firestore();
+              db.collection("userData").doc(user.uid).set({
+                uid: user.uid,
+                email: payload.email,
+                password: payload.password,
+                name: payload.name,
+                myWallet: payload.myWallet,
+              })
+            })
             .then(() => {
               context.commit('setUser', payload)
             })
@@ -52,26 +78,30 @@ export default new Vuex.Store({
           alert('入力に誤りがあります（' + error.message + '）');
         });
     },
-    signIn: function (context, payload) {
+    signIn(context, payload) {
       firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
         .then(() => {
-          firebase.auth().currentUser.updateProfile({
-            displayName: payload.name,
-          },
-          )
-            .then(() => {
-              context.commit('setUser', payload)
+          const user = firebase.auth().currentUser
+          const docRef = firebase.firestore().collection("userData").doc(user.uid);
+          docRef.get()
+            .then((doc) => {
+              if (doc.exists) {
+                context.commit('setUserData', doc)
+              } else {
+                console.log();
+              }
             })
             .then(() => {
               router.push('/home')
             })
-          })
-          .catch(function (error) {
-            alert('パスワードもしくはメールアドレスが異なります（' + error.message + '）');
-          });
-          
-        },
+            .catch(function (error) {
+              alert('パスワードもしくはメールアドレスが異なります（' + error.message + '）');
+            })
+        })
     },
+  },
   modules: {
-  }
+  },
+  plugins: [createPersistedState({ storage: window.sessionStorage })]
 })
+
