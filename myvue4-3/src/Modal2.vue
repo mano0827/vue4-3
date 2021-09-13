@@ -3,7 +3,7 @@
     <div class="main-content">
       <p>あなたの残高 {{ val.myWallet }}</p>
       <p>送る金額</p>
-      <input v-bind="data2" type="text" ref="input" >
+      <input v-model="inputValue" type="number" />
 
       <div class="button-content">
         <p>
@@ -27,7 +27,7 @@ export default {
     return {
       showContent2: false,
       userData: [],
-      data2: "",
+      inputValue: "",
     };
   },
   methods: {
@@ -36,9 +36,11 @@ export default {
     },
     closeModal2() {
       this.$emit("close", this.showContent2);
+      this.$store.dispatch("closeModal2", {
+        inputValue: this.inputValue,
+      });
     },
   },
-  mounted() {},
 };
 </script>
 
